@@ -8,35 +8,38 @@ height = 600
 
 window = pg.display.set_mode((width, height))
 
-drops = []
+stars = []
 
-
-class Drop:
+class Star:
     def __init__(self, surface) -> None:
         self.surface = surface
-        self.x = random.randint(0, width)
-        self.y = random.randint(-200, 0)
-        self.width = random.choice(np.linspace(2, 4, 100))
-        self.height = random.randint(20, 30)
-        self.speed = random.randint(8, 12)
-
-        self.color = "#C158A8"
-        
-        self.add()
-        
-    def add(self):
-        drops.append(self)
-    
-    def draw(self):
-        pg.draw.rect(
-            self.surface, self.color,
-            (self.x, self.y, self.width, self.height)
+        self.x = width / 2
+        self.y = height / 2 
+        self.max_speed = 5
+        self.min_speed = 0.1
+        self.target = (
+            random.choice(
+                random.choice([np.linspace(self.min_speed, self.max_speed, 50), np.linspace(-self.max_speed,-self.min_speed, 50)])
+            ),
+            random.choice(
+                random.choice([np.linspace(self.min_speed, self.max_speed, 50), np.linspace(-self.max_speed, -self.min_speed, 50)])
+            )
         )
+        self.direction = random.choice([-1, 1])
+        self.add()
+
+    def draw(self):
+        pg.draw.circle(self.surface, "white", (self.x, self.y), 3, 5)
 
     def move(self):
-        self.y += self.speed
+        self.x += self.target[0] * self.direction
+        self.y += self.target[1] * self.direction
+
+    def add(self):
+        stars.append(self)
 
 clock = pg.time.Clock()
+
 
 running = True
 while running:
@@ -45,18 +48,14 @@ while running:
     for event in pg.event.get():
         if event.type == pg.QUIT:
             running = not running
-    
-    if len(drops) < 400:
-        for i in range(4):
-            Drop(window)
 
-    window.fill("#D8DACA")
-    for drop in drops:
-        drop.move()
-        drop.draw()
-        
-        if drop.y > height:
-            drop.y = -100
+    window.fill("black")
 
-    print(len(drops))
+    for i in range(1):
+        Star(window)
+
+    for star in stars:
+        star.move()
+        star.draw()
+
     pg.display.update()
